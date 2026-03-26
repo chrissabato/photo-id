@@ -27,7 +27,6 @@ $already_done = $gallery['completed_at'] !== null;
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
   body { background: #f8f9fa; }
-  #photo-container { max-width: 680px; margin: 0 auto; }
   #main-photo {
     width: 100%;
     max-height: 480px;
@@ -65,21 +64,35 @@ $already_done = $gallery['completed_at'] !== null;
     border: 2px solid transparent;
     transition: opacity .2s, border-color .2s;
   }
-  .thumb.active   { opacity: 1; border-color: #0d6efd; }
-  .thumb.saved    { border-color: #198754; opacity: 1; }
+  .thumb.active       { opacity: 1; border-color: #0d6efd; }
+  .thumb.saved        { border-color: #198754; opacity: 1; }
   .thumb.active.saved { border-color: #0d6efd; }
-  #progress { height: 6px; }
+
+  /* Names sidebar */
+  #name-sidebar {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+  .quick-name-btn {
+    font-size: .8rem;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark bg-dark mb-4">
-  <div class="container justify-content-center">
+  <div class="container-fluid justify-content-center">
     <span class="navbar-brand fw-bold"><i class="bi bi-camera"></i> <?= htmlspecialchars($gallery['name']) ?></span>
   </div>
 </nav>
 
-<div class="container" id="photo-container">
+<div class="container-fluid px-3">
 
   <?php if ($already_done): ?>
     <div class="alert alert-success text-center">
@@ -91,10 +104,10 @@ $already_done = $gallery['completed_at'] !== null;
 
   <!-- Step 1: enter identifier name -->
   <div id="step-name">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm" style="max-width:500px;margin:0 auto">
       <div class="card-body text-center py-5">
         <h5 class="mb-3">Welcome! Please enter your name to begin.</h5>
-        <div class="d-flex gap-2 justify-content-center" style="max-width:380px;margin:0 auto">
+        <div class="d-flex gap-2 justify-content-center">
           <input type="text" id="identifier-name" class="form-control" placeholder="Your name" autofocus>
           <button class="btn btn-primary" id="start-btn">Start <i class="bi bi-arrow-right"></i></button>
         </div>
@@ -105,48 +118,61 @@ $already_done = $gallery['completed_at'] !== null;
 
   <!-- Step 2: identify photos -->
   <div id="step-photos" class="d-none">
+    <div class="row g-3">
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <span id="photo-counter" class="text-muted small"></span>
-      <span id="saved-count" class="text-muted small"></span>
-    </div>
+      <!-- Main column -->
+      <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span id="photo-counter" class="text-muted small"></span>
+          <span id="saved-count" class="text-muted small"></span>
+        </div>
 
-    <div class="progress mb-3" style="height:6px">
-      <div id="progress-bar" class="progress-bar" role="progressbar" style="width:0%"></div>
-    </div>
+        <div class="progress mb-3" style="height:6px">
+          <div id="progress-bar" class="progress-bar" role="progressbar" style="width:0%"></div>
+        </div>
 
-    <div class="card shadow-sm mb-3">
-      <div class="card-body p-2 text-center">
-        <img id="main-photo" src="" alt="Photo" title="Click to enlarge">
+        <div class="card shadow-sm mb-3">
+          <div class="card-body p-2 text-center">
+            <img id="main-photo" src="" alt="Photo" title="Click to enlarge">
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Who is in this photo?</label>
+          <input type="text" id="people-input" class="form-control form-control-lg"
+                 placeholder="e.g. John Smith, Mary Jones">
+          <div class="form-text">Enter all names, separated by commas. Leave blank if unknown.</div>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+          <button class="btn btn-outline-secondary" id="prev-btn"><i class="bi bi-chevron-left"></i> Prev</button>
+          <button class="btn btn-primary flex-grow-1" id="save-btn">Save &amp; Next <i class="bi bi-chevron-right"></i></button>
+        </div>
+
+        <div class="thumb-strip mb-4" id="thumb-strip"></div>
+
+        <div class="text-center mt-2 mb-5">
+          <button class="btn btn-success btn-lg" id="done-btn" style="display:none">
+            <i class="bi bi-check-lg"></i> I'm Done — Submit All
+          </button>
+          <p class="text-muted small mt-1" id="done-hint" style="display:none">
+            You can still go back and change answers before submitting.
+          </p>
+        </div>
       </div>
-    </div>
 
-    <!-- Lightbox -->
-    <div id="lightbox">
-      <img id="lightbox-img" src="" alt="Full size photo">
-    </div>
+      <!-- Names sidebar -->
+      <div class="col-lg-3">
+        <div id="name-sidebar" class="card shadow-sm">
+          <div class="card-header fw-semibold small py-2">
+            <i class="bi bi-people"></i> Known Names
+          </div>
+          <div class="card-body p-2" id="name-list">
+            <p class="text-muted small mb-0" id="name-list-empty">Names you enter will appear here as quick-add buttons.</p>
+          </div>
+        </div>
+      </div>
 
-    <div class="mb-2">
-      <label class="form-label fw-semibold">Who is in this photo?</label>
-      <input type="text" id="people-input" class="form-control form-control-lg"
-             placeholder="e.g. John Smith, Mary Jones">
-      <div class="form-text">Enter all names, separated by commas. Leave blank if unknown.</div>
-    </div>
-
-    <div class="d-flex gap-2 mb-4">
-      <button class="btn btn-outline-secondary" id="prev-btn"><i class="bi bi-chevron-left"></i> Prev</button>
-      <button class="btn btn-primary flex-grow-1" id="save-btn">Save &amp; Next <i class="bi bi-chevron-right"></i></button>
-    </div>
-
-    <div class="thumb-strip mb-4" id="thumb-strip"></div>
-
-    <div class="text-center mt-2 mb-5">
-      <button class="btn btn-success btn-lg" id="done-btn" style="display:none">
-        <i class="bi bi-check-lg"></i> I'm Done — Submit All
-      </button>
-      <p class="text-muted small mt-1" id="done-hint" style="display:none">
-        You can still go back and change answers before submitting.
-      </p>
     </div>
   </div>
 
@@ -155,6 +181,11 @@ $already_done = $gallery['completed_at'] !== null;
     <i class="bi bi-check-circle-fill text-success" style="font-size:4rem"></i>
     <h4 class="mt-3">Thank you!</h4>
     <p class="text-muted">Your identifications have been submitted.</p>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox">
+    <img id="lightbox-img" src="" alt="Full size photo">
   </div>
 
   <?php endif; ?>
@@ -172,15 +203,19 @@ const BASE_UPLOAD = '../uploads/' + GALLERY_ID + '/';
 
 let identifierName = '';
 let current = 0;
-const answers = {};  // photo_id -> text
+const answers   = {};   // photo_id -> text
+const knownNames = [];  // ordered list of unique names seen
 
 // DOM refs
 const stepName   = document.getElementById('step-name');
 const stepPhotos = document.getElementById('step-photos');
 const stepDone   = document.getElementById('step-done');
+const nameList   = document.getElementById('name-list');
+const nameListEmpty = document.getElementById('name-list-empty');
+const peopleInput   = document.getElementById('people-input');
 
 document.getElementById('start-btn').addEventListener('click', startIdentifying);
-document.getElementById('identifier-name').addEventListener('keydown', e => {
+document.getElementById('identifier-name').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') startIdentifying();
 });
 
@@ -199,12 +234,12 @@ function startIdentifying() {
 // Build thumbnail strip
 function buildThumbs() {
   const strip = document.getElementById('thumb-strip');
-  PHOTOS.forEach((p, i) => {
+  PHOTOS.forEach(function(p, i) {
     const img = document.createElement('img');
     img.className = 'thumb';
     img.src = BASE_UPLOAD + p.filename;
     img.dataset.index = i;
-    img.addEventListener('click', () => {
+    img.addEventListener('click', function() {
       saveCurrentAnswer();
       showPhoto(i);
     });
@@ -216,64 +251,98 @@ function showPhoto(idx) {
   current = idx;
   const p = PHOTOS[idx];
   document.getElementById('main-photo').src = BASE_UPLOAD + p.filename;
-  document.getElementById('people-input').value = answers[p.id] ?? '';
-  document.getElementById('people-input').focus();
+  peopleInput.value = answers[p.id] !== undefined ? answers[p.id] : '';
+  peopleInput.focus();
 
-  document.getElementById('photo-counter').textContent = `Photo ${idx + 1} of ${PHOTOS.length}`;
+  document.getElementById('photo-counter').textContent = 'Photo ' + (idx + 1) + ' of ' + PHOTOS.length;
 
-  // Progress
   const saved = Object.keys(answers).length;
-  document.getElementById('saved-count').textContent = `${saved} of ${PHOTOS.length} answered`;
-  const pct = (saved / PHOTOS.length) * 100;
-  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('saved-count').textContent = saved + ' of ' + PHOTOS.length + ' answered';
+  document.getElementById('progress-bar').style.width = ((saved / PHOTOS.length) * 100) + '%';
 
-  // Thumbnails
-  document.querySelectorAll('.thumb').forEach((th, i) => {
+  document.querySelectorAll('.thumb').forEach(function(th, i) {
     th.classList.toggle('active', i === idx);
-    const pid = PHOTOS[i].id;
-    th.classList.toggle('saved', answers[pid] !== undefined);
+    th.classList.toggle('saved', answers[PHOTOS[i].id] !== undefined);
   });
 
-  // Prev / done
   document.getElementById('prev-btn').disabled = idx === 0;
 
-  const allAnswered = PHOTOS.every(ph => answers[ph.id] !== undefined);
-  document.getElementById('done-btn').style.display    = allAnswered ? 'inline-block' : 'none';
-  document.getElementById('done-hint').style.display   = allAnswered ? 'block' : 'none';
+  const allAnswered = PHOTOS.every(function(ph) { return answers[ph.id] !== undefined; });
+  document.getElementById('done-btn').style.display  = allAnswered ? 'inline-block' : 'none';
+  document.getElementById('done-hint').style.display = allAnswered ? 'block' : 'none';
 }
 
 function saveCurrentAnswer() {
-  const input = document.getElementById('people-input').value.trim();
+  const input = peopleInput.value.trim();
   answers[PHOTOS[current].id] = input;
+  // Extract and register any new names
+  if (input) {
+    input.split(',').forEach(function(raw) {
+      const name = raw.trim();
+      if (name && knownNames.indexOf(name) === -1) {
+        knownNames.push(name);
+        addNameButton(name);
+      }
+    });
+  }
 }
 
-document.getElementById('save-btn').addEventListener('click', () => {
+function addNameButton(name) {
+  nameListEmpty.style.display = 'none';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-outline-secondary btn-sm quick-name-btn w-100 mb-1';
+  btn.title = name;
+  btn.innerHTML = '<i class="bi bi-plus"></i> ' + escapeHtml(name);
+  btn.addEventListener('click', function() {
+    appendName(name);
+  });
+  nameList.appendChild(btn);
+}
+
+function appendName(name) {
+  const current_val = peopleInput.value.trim();
+  if (current_val === '') {
+    peopleInput.value = name;
+  } else {
+    // Don't add if already in the field
+    const existing = current_val.split(',').map(function(n) { return n.trim(); });
+    if (existing.indexOf(name) === -1) {
+      peopleInput.value = current_val + ', ' + name;
+    }
+  }
+  peopleInput.focus();
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('save-btn').addEventListener('click', function() {
   saveCurrentAnswer();
   if (current < PHOTOS.length - 1) {
     showPhoto(current + 1);
   } else {
-    showPhoto(current); // refresh to show done button
+    showPhoto(current);
   }
 });
 
-document.getElementById('prev-btn').addEventListener('click', () => {
+document.getElementById('prev-btn').addEventListener('click', function() {
   saveCurrentAnswer();
   if (current > 0) showPhoto(current - 1);
 });
 
-document.getElementById('people-input').addEventListener('keydown', e => {
+peopleInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.getElementById('save-btn').click();
 });
 
-document.getElementById('done-btn').addEventListener('click', async () => {
+document.getElementById('done-btn').addEventListener('click', async function() {
   document.getElementById('done-btn').disabled = true;
   document.getElementById('done-btn').textContent = 'Submitting…';
 
-  // Save all answers
-  const payload = PHOTOS.map(p => ({
-    photo_id: p.id,
-    people: answers[p.id] ?? ''
-  }));
+  const payload = PHOTOS.map(function(p) {
+    return { photo_id: p.id, people: answers[p.id] !== undefined ? answers[p.id] : '' };
+  });
 
   try {
     const res = await fetch('../api/complete.php', {
@@ -291,7 +360,7 @@ document.getElementById('done-btn').addEventListener('click', async () => {
       stepPhotos.classList.add('d-none');
       stepDone.classList.remove('d-none');
     } else {
-      alert('Error: ' + (data.error ?? 'Unknown error'));
+      alert('Error: ' + (data.error || 'Unknown error'));
       document.getElementById('done-btn').disabled = false;
       document.getElementById('done-btn').innerHTML = '<i class="bi bi-check-lg"></i> I\'m Done — Submit All';
     }
@@ -301,9 +370,10 @@ document.getElementById('done-btn').addEventListener('click', async () => {
     document.getElementById('done-btn').innerHTML = '<i class="bi bi-check-lg"></i> I\'m Done — Submit All';
   }
 });
+
 // Lightbox
-const lightbox     = document.getElementById('lightbox');
-const lightboxImg  = document.getElementById('lightbox-img');
+const lightbox    = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
 
 document.getElementById('main-photo').addEventListener('click', function() {
   lightboxImg.src = this.src;
