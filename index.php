@@ -1,5 +1,10 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/config.php';
+
+$config_warnings = [];
+if (ADMIN_EMAIL === 'admin@example.com') $config_warnings[] = 'Admin notification email is not set (<code>ADMIN_EMAIL</code>). Completion emails will not be delivered.';
+if (FROM_EMAIL  === 'noreply@example.com') $config_warnings[] = 'Sender email is not set (<code>FROM_EMAIL</code>).';
 
 $db = get_db();
 $galleries = $db->query("
@@ -38,6 +43,20 @@ $galleries = $db->query("
 </nav>
 
 <div class="container">
+
+  <?php if ($config_warnings): ?>
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong><i class="bi bi-exclamation-triangle-fill"></i> Configuration required</strong>
+    — edit <code>config.php</code> before going live:
+    <ul class="mb-0 mt-1">
+      <?php foreach ($config_warnings as $w): ?>
+        <li><?= $w ?></li>
+      <?php endforeach; ?>
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <?php endif; ?>
+
   <h5 class="mb-3 text-muted">Galleries</h5>
 
   <?php if (empty($galleries)): ?>
@@ -77,9 +96,15 @@ $galleries = $db->query("
             </div>
           </div>
           <div class="card-footer bg-transparent d-flex gap-2">
-            <a href="admin/view.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-outline-primary w-100">
+            <a href="admin/view.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-outline-primary flex-grow-1">
               <i class="bi bi-eye"></i> View Results
             </a>
+            <button class="btn btn-sm btn-outline-danger delete-btn"
+                    data-id="<?= $g['id'] ?>"
+                    data-name="<?= htmlspecialchars($g['name'], ENT_QUOTES) ?>"
+                    title="Delete gallery">
+              <i class="bi bi-trash"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -88,6 +113,30 @@ $galleries = $db->query("
   <?php endif; ?>
 </div>
 
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger"><i class="bi bi-trash"></i> Delete Gallery</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="delete-name"></strong>?</p>
+        <p class="text-muted small mb-0">This will permanently remove all photos and identifications. This cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="admin/delete.php">
+          <input type="hidden" name="id" id="delete-id">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.querySelectorAll('.copy-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -96,6 +145,15 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.innerHTML = '<i class="bi bi-check"></i>';
       setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard"></i>', 1500);
     });
+  });
+});
+
+const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+document.querySelectorAll('.delete-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('delete-id').value = btn.dataset.id;
+    document.getElementById('delete-name').textContent = btn.dataset.name;
+    deleteModal.show();
   });
 });
 </script>
