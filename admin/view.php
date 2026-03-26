@@ -70,17 +70,11 @@ $identifiers = $identifiers_rs->fetchAll();
   </div>
 
   <?php if ($identifiers): ?>
-  <div class="card mb-4">
-    <div class="card-header fw-semibold"><i class="bi bi-people"></i> Identifiers</div>
-    <ul class="list-group list-group-flush">
-      <?php foreach ($identifiers as $ident): ?>
-      <li class="list-group-item small">
-        <?= htmlspecialchars($ident['identifier_name']) ?>
-        <span class="text-muted ms-2"><?= date('M j, Y g:i a', strtotime($ident['submitted_at'])) ?></span>
-      </li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
+  <p class="text-muted small mb-3">
+    <i class="bi bi-people"></i>
+    <?= count($identifiers) ?> identifier(s):
+    <?= htmlspecialchars(implode(', ', array_column($identifiers, 'identifier_name'))) ?>
+  </p>
   <?php endif; ?>
 
   <div class="row g-3">
@@ -89,14 +83,18 @@ $identifiers = $identifiers_rs->fetchAll();
       <div class="card photo-card h-100">
         <img src="../uploads/<?= $gallery['id'] ?>/<?= htmlspecialchars($photo['filename']) ?>" alt="Photo">
         <div class="card-body p-2">
-          <?php $entries = $id_map[$photo['id']] ?? []; ?>
-          <?php if ($entries): ?>
-            <?php foreach ($entries as $entry): ?>
-              <div class="id-entry">
-                <strong><?= htmlspecialchars($entry['identifier_name']) ?>:</strong>
-                <?= htmlspecialchars($entry['people'] ?: '(blank)') ?>
-              </div>
-            <?php endforeach; ?>
+          <?php
+            $entries = $id_map[$photo['id']] ?? [];
+            $names = [];
+            foreach ($entries as $entry) {
+              foreach (explode(',', $entry['people']) as $n) {
+                $n = trim($n);
+                if ($n !== '' && !in_array($n, $names)) $names[] = $n;
+              }
+            }
+          ?>
+          <?php if ($names): ?>
+            <p class="mb-0 small"><?= htmlspecialchars(implode(', ', $names)) ?></p>
           <?php else: ?>
             <span class="text-muted small">No identifications yet</span>
           <?php endif; ?>
