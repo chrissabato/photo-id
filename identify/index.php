@@ -429,8 +429,8 @@ lightbox.addEventListener('click', function() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') lightbox.classList.remove('open');
   if (e.target === peopleInput) return; // don't hijack typing
-  if (e.key === 'ArrowRight') document.getElementById('save-btn').click();
-  if (e.key === 'ArrowLeft')  document.getElementById('prev-btn').click();
+  if (e.key === 'ArrowRight') { document.getElementById('save-btn').click(); peopleInput.blur(); }
+  if (e.key === 'ArrowLeft')  { document.getElementById('prev-btn').click(); peopleInput.blur(); }
 });
 </script>
 </body>
