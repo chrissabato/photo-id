@@ -1,0 +1,12 @@
+# Uploaded photos
+uploads/*/
+
+# SQLite database
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
