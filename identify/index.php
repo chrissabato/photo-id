@@ -91,6 +91,7 @@ $already_done = $gallery['completed_at'] !== null;
   }
   #name-list { display: flex; flex-wrap: wrap; gap: 4px; }
   .quick-name-btn { font-size: .8rem; }
+  .quick-name-btn.active { background: #0d6efd; color: #fff; border-color: #0d6efd; }
 </style>
 </head>
 <body>
@@ -248,6 +249,7 @@ function showPhoto(idx) {
   document.getElementById('main-photo').src = BASE_UPLOAD + p.filename;
   peopleInput.value = answers[p.id] !== undefined ? answers[p.id] : '';
   peopleInput.focus();
+  syncNameButtons();
 
   document.getElementById('photo-counter').textContent = 'Photo ' + (idx + 1) + ' of ' + PHOTOS.length;
 
@@ -288,8 +290,9 @@ function addNameButton(name) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'btn btn-outline-secondary btn-sm quick-name-btn';
+  btn.dataset.name = name;
   btn.title = name;
-  btn.innerHTML = '<i class="bi bi-plus"></i> ' + escapeHtml(name);
+  btn.textContent = name;
   btn.addEventListener('click', function() {
     appendName(name);
   });
@@ -297,16 +300,23 @@ function addNameButton(name) {
 }
 
 function appendName(name) {
-  const current_val = peopleInput.value.trim();
-  if (current_val === '') {
-    peopleInput.value = name;
+  const existing = peopleInput.value.split(',').map(function(n) { return n.trim(); }).filter(Boolean);
+  const idx = existing.indexOf(name);
+  if (idx === -1) {
+    existing.push(name);
   } else {
-    const existing = current_val.split(',').map(function(n) { return n.trim(); });
-    if (existing.indexOf(name) === -1) {
-      peopleInput.value = current_val + ', ' + name;
-    }
+    existing.splice(idx, 1);
   }
+  peopleInput.value = existing.join(', ');
+  syncNameButtons();
   peopleInput.blur();
+}
+
+function syncNameButtons() {
+  const active = peopleInput.value.split(',').map(function(n) { return n.trim(); }).filter(Boolean);
+  document.querySelectorAll('.quick-name-btn').forEach(function(btn) {
+    btn.classList.toggle('active', active.indexOf(btn.dataset.name) !== -1);
+  });
 }
 
 function escapeHtml(str) {
@@ -326,6 +336,8 @@ document.getElementById('prev-btn').addEventListener('click', function() {
   saveCurrentAnswer();
   if (current > 0) showPhoto(current - 1);
 });
+
+peopleInput.addEventListener('input', syncNameButtons);
 
 peopleInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.getElementById('save-btn').click();
