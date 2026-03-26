@@ -159,7 +159,6 @@ $already_done = $gallery['completed_at'] !== null;
             You can still go back and change answers before submitting.
           </p>
         </div>
-        </div>
       </div>
 
       <!-- Names sidebar -->
