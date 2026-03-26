@@ -139,10 +139,10 @@ $already_done = $gallery['completed_at'] !== null;
 <script>
 const GALLERY_ID = <?= json_encode($gallery['id']) ?>;
 const TOKEN      = <?= json_encode($token) ?>;
-const PHOTOS     = <?= json_encode(array_map(fn($p) => [
+const PHOTOS     = <?= json_encode(array_map(function($p) { return [
     'id'       => $p['id'],
     'filename' => $p['filename'],
-], $photos)) ?>;
+]; }, $photos)) ?>;
 
 const BASE_UPLOAD = '../uploads/' + GALLERY_ID + '/';
 
