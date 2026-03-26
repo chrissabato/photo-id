@@ -19,12 +19,11 @@ if (!$data) {
     exit;
 }
 
-$gallery_id      = (int)($data['gallery_id']      ?? 0);
-$token           = trim($data['token']            ?? '');
-$identifier_name = trim($data['identifier_name'] ?? '');
-$identifications = $data['identifications']       ?? [];
+$gallery_id      = (int)($data['gallery_id'] ?? 0);
+$token           = trim($data['token']       ?? '');
+$identifications = $data['identifications'] ?? [];
 
-if (!$gallery_id || $token === '' || $identifier_name === '' || !is_array($identifications)) {
+if (!$gallery_id || $token === '' || !is_array($identifications)) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'Missing required fields']);
     exit;
@@ -53,7 +52,7 @@ foreach ($identifications as $item) {
     $photo_id = (int)($item['photo_id'] ?? 0);
     $people   = trim($item['people']    ?? '');
     if (!$photo_id) continue;
-    $stmt->execute([$photo_id, $gallery_id, $identifier_name, $people]);
+    $stmt->execute([$photo_id, $gallery_id, '', $people]);
 }
 
 // Mark gallery complete (only first completion sets the timestamp)
@@ -63,7 +62,7 @@ if (!$gallery['completed_at']) {
 }
 
 $results_url  = BASE_URL . "/admin/view.php?id={$gallery_id}";
-$message_text = "{$identifier_name} has finished identifying photos in \"{$gallery['name']}\".\n"
+$message_text = "Photos in \"{$gallery['name']}\" have been identified.\n"
               . "View results: {$results_url}";
 
 // Email notification

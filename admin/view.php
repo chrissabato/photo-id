@@ -24,15 +24,6 @@ foreach ($ids_rs->fetchAll() as $row) {
     $id_map[$row['photo_id']][] = $row;
 }
 
-$identifiers_rs = $db->prepare("
-    SELECT identifier_name, MIN(submitted_at) AS submitted_at
-    FROM identifications
-    WHERE gallery_id = ?
-    GROUP BY identifier_name
-    ORDER BY submitted_at
-");
-$identifiers_rs->execute([$id]);
-$identifiers = $identifiers_rs->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,13 +60,6 @@ $identifiers = $identifiers_rs->fetchAll();
     <?php endif; ?>
   </div>
 
-  <?php if ($identifiers): ?>
-  <p class="text-muted small mb-3">
-    <i class="bi bi-people"></i>
-    <?= count($identifiers) ?> identifier(s):
-    <?= htmlspecialchars(implode(', ', array_column($identifiers, 'identifier_name'))) ?>
-  </p>
-  <?php endif; ?>
 
   <div class="row g-3">
     <?php foreach ($photos as $photo): ?>

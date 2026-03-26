@@ -116,22 +116,8 @@ $already_done = $gallery['completed_at'] !== null;
     <div class="alert alert-warning text-center">No photos in this gallery yet.</div>
   <?php else: ?>
 
-  <!-- Step 1: enter identifier name -->
-  <div id="step-name">
-    <div class="card shadow-sm" style="max-width:500px;margin:0 auto">
-      <div class="card-body text-center py-5">
-        <h5 class="mb-3">Welcome! Please enter your name to begin.</h5>
-        <div class="d-flex gap-2 justify-content-center">
-          <input type="text" id="identifier-name" class="form-control" placeholder="Your name" autofocus>
-          <button class="btn btn-primary" id="start-btn">Start <i class="bi bi-arrow-right"></i></button>
-        </div>
-        <p id="name-error" class="text-danger mt-2 d-none">Please enter your name.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Step 2: identify photos -->
-  <div id="step-photos" class="d-none">
+  <!-- Identify photos -->
+  <div id="step-photos">
     <div class="row g-3">
 
       <!-- Main column -->
@@ -224,35 +210,20 @@ const PHOTOS     = <?= json_encode(array_map(function($p) { return [
 
 const BASE_UPLOAD = '../uploads/' + GALLERY_ID + '/';
 
-let identifierName = '';
 let current = 0;
-const answers   = {};   // photo_id -> text
-const knownNames = [];  // ordered list of unique names seen
+const answers    = {};   // photo_id -> text
+const knownNames = [];   // ordered list of unique names seen
 
 // DOM refs
-const stepName   = document.getElementById('step-name');
 const stepPhotos = document.getElementById('step-photos');
 const stepDone   = document.getElementById('step-done');
 const nameList   = document.getElementById('name-list');
 const nameListEmpty = document.getElementById('name-list-empty');
 const peopleInput   = document.getElementById('people-input');
 
-document.getElementById('start-btn').addEventListener('click', startIdentifying);
-document.getElementById('identifier-name').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') startIdentifying();
-});
-
-function startIdentifying() {
-  identifierName = document.getElementById('identifier-name').value.trim();
-  if (!identifierName) {
-    document.getElementById('name-error').classList.remove('d-none');
-    return;
-  }
-  stepName.classList.add('d-none');
-  stepPhotos.classList.remove('d-none');
-  buildThumbs();
-  showPhoto(0);
-}
+// Start immediately
+buildThumbs();
+showPhoto(0);
 
 // Build thumbnail strip
 function buildThumbs() {
@@ -379,7 +350,6 @@ document.getElementById('done-btn').addEventListener('click', async function() {
       body: JSON.stringify({
         gallery_id: GALLERY_ID,
         token: TOKEN,
-        identifier_name: identifierName,
         identifications: payload
       })
     });
