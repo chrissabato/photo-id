@@ -3,8 +3,9 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/config.php';
 
 $config_warnings = [];
-if (ADMIN_EMAIL === 'admin@example.com') $config_warnings[] = 'Admin notification email is not set (<code>ADMIN_EMAIL</code>). Completion emails will not be delivered.';
-if (FROM_EMAIL  === 'noreply@example.com') $config_warnings[] = 'Sender email is not set (<code>FROM_EMAIL</code>).';
+if (!get_setting('admin_email') && !get_setting('gchat_webhook')) {
+    $config_warnings[] = 'No notifications configured. <a href="admin/settings.php">Configure email or Google Chat</a> to receive completion alerts.';
+}
 
 $db = get_db();
 $galleries = $db->query("
@@ -38,7 +39,10 @@ $galleries = $db->query("
 <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container">
     <span class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</span>
-    <a href="admin/upload.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Gallery</a>
+    <div class="d-flex gap-2">
+      <a href="admin/upload.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Gallery</a>
+      <a href="admin/settings.php" class="btn btn-outline-light btn-sm"><i class="bi bi-gear"></i> Settings</a>
+    </div>
   </div>
 </nav>
 

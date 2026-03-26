@@ -43,5 +43,25 @@ function init_schema(PDO $pdo): void {
             FOREIGN KEY (photo_id)   REFERENCES photos(id)    ON DELETE CASCADE,
             FOREIGN KEY (gallery_id) REFERENCES galleries(id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS settings (
+            key   TEXT PRIMARY KEY,
+            value TEXT NOT NULL DEFAULT ''
+        );
     ");
+}
+
+function get_setting(string $key, string $default = ''): string {
+    $db  = get_db();
+    $row = $db->prepare("SELECT value FROM settings WHERE key = ?");
+    $row->execute([$key]);
+    $row = $row->fetch();
+    return $row ? $row['value'] : $default;
+}
+
+function save_setting(string $key, string $value): void {
+    $db = get_db();
+    $db->prepare("INSERT INTO settings (key, value) VALUES (?, ?)
+                  ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+       ->execute([$key, $value]);
 }

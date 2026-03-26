@@ -61,16 +61,35 @@ if (!$gallery['completed_at']) {
        ->execute([$gallery_id]);
 }
 
-// Send email notification
-$subject = "Photo ID Complete: {$gallery['name']}";
-$body    = "Hi,\n\n"
-         . "{$identifier_name} has finished identifying photos in the gallery \"{$gallery['name']}\".\n\n"
-         . "View results: " . BASE_URL . "/admin/view.php?id={$gallery_id}\n\n"
-         . "— Photo ID System";
+$results_url  = BASE_URL . "/admin/view.php?id={$gallery_id}";
+$message_text = "{$identifier_name} has finished identifying photos in \"{$gallery['name']}\".\n"
+              . "View results: {$results_url}";
 
-$headers = "From: " . FROM_NAME . " <" . FROM_EMAIL . ">\r\n"
-         . "Content-Type: text/plain; charset=UTF-8\r\n";
+// Email notification
+$admin_email = get_setting('admin_email');
+$from_email  = get_setting('from_email');
+$from_name   = get_setting('from_name', 'Photo ID');
 
-mail(ADMIN_EMAIL, $subject, $body, $headers);
+if ($admin_email && $from_email) {
+    $subject = "Photo ID Complete: {$gallery['name']}";
+    $body    = "Hi,\n\n{$message_text}\n\n— Photo ID System";
+    $headers = "From: {$from_name} <{$from_email}>\r\nContent-Type: text/plain; charset=UTF-8\r\n";
+    mail($admin_email, $subject, $body, $headers);
+}
+
+// Google Chat notification
+$gchat_webhook = get_setting('gchat_webhook');
+if ($gchat_webhook) {
+    $payload = json_encode(['text' => $message_text]);
+    $ctx = stream_context_create([
+        'http' => [
+            'method'  => 'POST',
+            'header'  => "Content-Type: application/json\r\n",
+            'content' => $payload,
+            'timeout' => 10,
+        ]
+    ]);
+    @file_get_contents($gchat_webhook, false, $ctx);
+}
 
 echo json_encode(['ok' => true]);
