@@ -97,10 +97,69 @@ $already_done = $gallery['completed_at'] !== null;
 <body>
 
 <nav class="navbar navbar-dark bg-dark mb-4">
-  <div class="container-fluid justify-content-center">
+  <div class="container-fluid justify-content-between">
     <span class="navbar-brand fw-bold"><i class="bi bi-camera"></i> <?= htmlspecialchars($gallery['name']) ?></span>
+    <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#helpModal">
+      <i class="bi bi-question-circle"></i> Help
+    </button>
   </div>
 </nav>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-question-circle"></i> How to identify photos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h6 class="fw-bold"><i class="bi bi-image text-primary"></i> Viewing Photos</h6>
+            <ul class="small ps-3">
+              <li>Photos are shown one at a time in the main area.</li>
+              <li><strong>Click a photo</strong> to view it full screen. Click again or press <kbd>Esc</kbd> to close.</li>
+              <li>Use the <strong>filmstrip</strong> at the bottom to jump to any photo directly.</li>
+              <li>Filmstrip thumbnails turn <span class="text-success fw-bold">green</span> once a name has been entered for that photo.</li>
+            </ul>
+
+            <h6 class="fw-bold mt-3"><i class="bi bi-arrow-left-right text-primary"></i> Navigation</h6>
+            <ul class="small ps-3">
+              <li>Click <i class="bi bi-chevron-left"></i> / <i class="bi bi-chevron-right"></i> or press the <kbd>←</kbd> <kbd>→</kbd> arrow keys to move between photos.</li>
+              <li>Pressing <kbd>→</kbd> saves the current name and advances.</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-bold"><i class="bi bi-pencil text-primary"></i> Entering Names</h6>
+            <ul class="small ps-3">
+              <li>Type names in the text field separated by <strong>commas</strong>: <em>Jane Smith, John Doe</em></li>
+              <li>Leave the field blank if you don't recognise anyone in the photo.</li>
+              <li>Press <kbd>Enter</kbd> or click <i class="bi bi-chevron-right"></i> to save and move on.</li>
+            </ul>
+
+            <h6 class="fw-bold mt-3"><i class="bi bi-people text-primary"></i> Known Names Panel</h6>
+            <ul class="small ps-3">
+              <li>As you enter names they appear as <strong>quick-add buttons</strong> on the right.</li>
+              <li><strong>Click a button</strong> to add that name to the current photo. Click it again to remove it.</li>
+              <li>Buttons turn <span class="text-primary fw-bold">blue</span> when that person is tagged in the current photo.</li>
+              <li>Click <strong>Load Roster</strong> to pre-populate the panel from a saved name list.</li>
+            </ul>
+
+            <h6 class="fw-bold mt-3"><i class="bi bi-check-circle text-success"></i> Finishing Up</h6>
+            <ul class="small ps-3">
+              <li>Once every photo has been visited a <strong>green bar</strong> appears at the bottom — click it to submit.</li>
+              <li>You can go back and change any answer before submitting.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="container-fluid px-3">
 
@@ -445,5 +504,6 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowLeft')  { document.getElementById('prev-btn').click(); peopleInput.blur(); }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
