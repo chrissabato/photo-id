@@ -34,6 +34,25 @@ $already_done = $gallery['completed_at'] !== null;
     object-fit: contain;
     border-radius: 8px;
     background: #000;
+    cursor: zoom-in;
+  }
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.92);
+    z-index: 9999;
+    cursor: zoom-out;
+    align-items: center;
+    justify-content: center;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img {
+    max-width: 95vw;
+    max-height: 95vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 0 40px rgba(0,0,0,.8);
   }
   .thumb-strip { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; }
   .thumb {
@@ -98,8 +117,13 @@ $already_done = $gallery['completed_at'] !== null;
 
     <div class="card shadow-sm mb-3">
       <div class="card-body p-2 text-center">
-        <img id="main-photo" src="" alt="Photo">
+        <img id="main-photo" src="" alt="Photo" title="Click to enlarge">
       </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox">
+      <img id="lightbox-img" src="" alt="Full size photo">
     </div>
 
     <div class="mb-2">
@@ -276,6 +300,23 @@ document.getElementById('done-btn').addEventListener('click', async () => {
     document.getElementById('done-btn').disabled = false;
     document.getElementById('done-btn').innerHTML = '<i class="bi bi-check-lg"></i> I\'m Done — Submit All';
   }
+});
+// Lightbox
+const lightbox     = document.getElementById('lightbox');
+const lightboxImg  = document.getElementById('lightbox-img');
+
+document.getElementById('main-photo').addEventListener('click', function() {
+  lightboxImg.src = this.src;
+  lightbox.classList.add('open');
+});
+
+lightbox.addEventListener('click', function() {
+  lightbox.classList.remove('open');
+  lightboxImg.src = '';
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') lightbox.classList.remove('open');
 });
 </script>
 </body>
