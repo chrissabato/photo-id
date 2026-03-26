@@ -41,6 +41,7 @@ $galleries = $db->query("
     <span class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</span>
     <div class="d-flex gap-2">
       <a href="admin/upload.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Gallery</a>
+      <a href="admin/rosters.php" class="btn btn-outline-light btn-sm"><i class="bi bi-people"></i> Rosters</a>
       <a href="admin/settings.php" class="btn btn-outline-light btn-sm"><i class="bi bi-gear"></i> Settings</a>
     </div>
   </div>

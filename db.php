@@ -48,6 +48,20 @@ function init_schema(PDO $pdo): void {
             key   TEXT PRIMARY KEY,
             value TEXT NOT NULL DEFAULT ''
         );
+
+        CREATE TABLE IF NOT EXISTS rosters (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS roster_names (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            roster_id INTEGER NOT NULL,
+            name      TEXT NOT NULL,
+            sort_order INTEGER DEFAULT 0,
+            FOREIGN KEY (roster_id) REFERENCES rosters(id) ON DELETE CASCADE
+        );
     ");
 }
 

@@ -163,8 +163,16 @@ $already_done = $gallery['completed_at'] !== null;
       <!-- Names sidebar -->
       <div class="col-lg-3">
         <div id="name-sidebar" class="card shadow-sm">
-          <div class="card-header fw-semibold small py-2">
-            <i class="bi bi-people"></i> Known Names
+          <div class="card-header fw-semibold small py-2 d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-people"></i> Known Names</span>
+            <button class="btn btn-outline-secondary btn-sm py-0" id="load-roster-btn" title="Load a roster">
+              <i class="bi bi-upload"></i> Load Roster
+            </button>
+          </div>
+          <div class="px-2 pt-2 d-none" id="roster-picker">
+            <select class="form-select form-select-sm mb-2" id="roster-select">
+              <option value="">— select a roster —</option>
+            </select>
           </div>
           <div class="card-body p-2" id="name-list">
             <p class="text-muted small mb-0" id="name-list-empty">Names you enter will appear here as quick-add buttons.</p>
@@ -365,6 +373,49 @@ document.getElementById('done-btn').addEventListener('click', async function() {
     document.getElementById('done-btn').disabled = false;
     document.getElementById('done-btn').innerHTML = '<i class="bi bi-check-lg"></i> I\'m Done — Submit All';
   }
+});
+
+// Roster loader
+const rosterBtn    = document.getElementById('load-roster-btn');
+const rosterPicker = document.getElementById('roster-picker');
+const rosterSelect = document.getElementById('roster-select');
+
+rosterBtn.addEventListener('click', function() {
+  if (rosterPicker.classList.contains('d-none')) {
+    // Load roster list if not already loaded
+    if (rosterSelect.options.length === 1) {
+      fetch('../api/rosters.php')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          d.rosters.forEach(function(r) {
+            var opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = r.name;
+            rosterSelect.appendChild(opt);
+          });
+        });
+    }
+    rosterPicker.classList.remove('d-none');
+  } else {
+    rosterPicker.classList.add('d-none');
+  }
+});
+
+rosterSelect.addEventListener('change', function() {
+  var id = this.value;
+  if (!id) return;
+  fetch('../api/rosters.php?id=' + id)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      d.names.forEach(function(name) {
+        if (knownNames.indexOf(name) === -1) {
+          knownNames.push(name);
+          addNameButton(name);
+        }
+      });
+      rosterPicker.classList.add('d-none');
+      rosterSelect.value = '';
+    });
 });
 
 // Lightbox
