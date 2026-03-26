@@ -93,6 +93,7 @@ $identifiers = $identifiers_rs->fetchAll();
               }
             }
           ?>
+          <p class="text-muted small mb-1" style="font-size:.7rem;word-break:break-all"><?= htmlspecialchars($photo['filename']) ?></p>
           <?php if ($names): ?>
             <p class="mb-0 small"><?= htmlspecialchars(implode(', ', $names)) ?></p>
           <?php else: ?>
