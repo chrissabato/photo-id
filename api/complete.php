@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../notify.php';
 
 header('Content-Type: application/json');
 
@@ -80,16 +81,7 @@ if ($admin_email && $from_email) {
 // Google Chat notification
 $gchat_webhook = get_setting('gchat_webhook');
 if ($gchat_webhook) {
-    $payload = json_encode(['text' => $message_text]);
-    $ctx = stream_context_create([
-        'http' => [
-            'method'  => 'POST',
-            'header'  => "Content-Type: application/json\r\n",
-            'content' => $payload,
-            'timeout' => 10,
-        ]
-    ]);
-    @file_get_contents($gchat_webhook, false, $ctx);
+    send_gchat($gchat_webhook, $message_text);
 }
 
 echo json_encode(['ok' => true]);

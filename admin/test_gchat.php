@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../notify.php';
 
 header('Content-Type: application/json');
 
@@ -14,22 +15,4 @@ if (!$webhook) {
     exit;
 }
 
-$result = send_gchat($webhook, 'Test message from Photo ID — notifications are working!');
-echo json_encode($result);
-
-function send_gchat(string $webhook, string $text): array {
-    $payload = json_encode(['text' => $text]);
-    $ctx = stream_context_create([
-        'http' => [
-            'method'  => 'POST',
-            'header'  => "Content-Type: application/json\r\n",
-            'content' => $payload,
-            'timeout' => 10,
-        ]
-    ]);
-    $response = @file_get_contents($webhook, false, $ctx);
-    if ($response === false) {
-        return ['ok' => false, 'error' => 'Could not reach webhook URL'];
-    }
-    return ['ok' => true];
-}
+echo json_encode(send_gchat($webhook, 'Test message from Photo ID — notifications are working!'));
