@@ -1,0 +1,228 @@
+"""
+Photo ID Tagger
+===============
+Reads a CSV exported from the Photo ID web app and writes "Person Shown"
+(Iptc4xmpExt:PersonInImage) XMP metadata to matching image files using ExifTool.
+
+Requirements:
+  - Python 3.6+
+  - ExifTool (https://exiftool.org) — place exiftool.exe in the same folder
+    as this script, or add it to your PATH.
+
+Usage:
+  Run this script and use the GUI to select the CSV file and image folder.
+"""
+
+import csv
+import os
+import shutil
+import subprocess
+import sys
+import threading
+import tkinter as tk
+from tkinter import filedialog, scrolledtext, ttk
+
+
+# ---------------------------------------------------------------------------
+# ExifTool helpers
+# ---------------------------------------------------------------------------
+
+def find_exiftool():
+    """Return path to exiftool executable, or None if not found."""
+    script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    candidate = os.path.join(script_dir, "exiftool.exe")
+    if os.path.isfile(candidate):
+        return candidate
+    return shutil.which("exiftool") or shutil.which("exiftool.exe")
+
+
+def run_exiftool(exiftool_path, image_path, names):
+    """
+    Write PersonInImage tags to an image file.
+    Returns (returncode, stdout, stderr).
+    """
+    tag = "Iptc4xmpExt:PersonInImage"
+    args = [exiftool_path, "-overwrite_original"]
+    args.append("-{}={}".format(tag, names[0]))
+    for name in names[1:]:
+        args.append("-{}+={}".format(tag, name))
+    args.append(image_path)
+
+    result = subprocess.run(
+        args,
+        shell=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    return result.returncode, result.stdout.strip(), result.stderr.strip()
+
+
+# ---------------------------------------------------------------------------
+# Main application
+# ---------------------------------------------------------------------------
+
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Photo ID Tagger")
+        self.minsize(600, 400)
+        self.resizable(True, True)
+        self._build_ui()
+
+    def _build_ui(self):
+        pad = {"padx": 8, "pady": 4}
+
+        # --- Input frame ---
+        frm = ttk.Frame(self)
+        frm.pack(fill="x", padx=12, pady=8)
+        frm.columnconfigure(1, weight=1)
+
+        ttk.Label(frm, text="CSV File:").grid(row=0, column=0, sticky="w", **pad)
+        self.csv_var = tk.StringVar()
+        ttk.Entry(frm, textvariable=self.csv_var).grid(row=0, column=1, sticky="ew", **pad)
+        ttk.Button(frm, text="Browse…", command=self._browse_csv).grid(row=0, column=2, **pad)
+
+        ttk.Label(frm, text="Image Folder:").grid(row=1, column=0, sticky="w", **pad)
+        self.folder_var = tk.StringVar()
+        ttk.Entry(frm, textvariable=self.folder_var).grid(row=1, column=1, sticky="ew", **pad)
+        ttk.Button(frm, text="Browse…", command=self._browse_folder).grid(row=1, column=2, **pad)
+
+        # --- Run button ---
+        self.run_btn = ttk.Button(self, text="Run", command=self._on_run)
+        self.run_btn.pack(pady=4)
+
+        # --- Log area ---
+        ttk.Separator(self).pack(fill="x", padx=12)
+        ttk.Label(self, text="Log:", anchor="w").pack(fill="x", padx=12, pady=(6, 0))
+        self.log = scrolledtext.ScrolledText(self, state="disabled", wrap="word", height=16)
+        self.log.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+
+    def _browse_csv(self):
+        path = filedialog.askopenfilename(
+            title="Select CSV export file",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
+        if path:
+            self.csv_var.set(path)
+
+    def _browse_folder(self):
+        path = filedialog.askdirectory(title="Select image folder")
+        if path:
+            self.folder_var.set(path)
+
+    def _log(self, msg):
+        """Append a line to the log widget (must be called from main thread)."""
+        self.log.config(state="normal")
+        self.log.insert("end", msg + "\n")
+        self.log.see("end")
+        self.log.config(state="disabled")
+
+    def _log_threadsafe(self, msg):
+        """Append a log line from any thread."""
+        self.after(0, lambda m=msg: self._log(m))
+
+    def _on_run(self):
+        # Clear log
+        self.log.config(state="normal")
+        self.log.delete("1.0", "end")
+        self.log.config(state="disabled")
+
+        csv_path = self.csv_var.get().strip()
+        folder   = self.folder_var.get().strip()
+
+        if not csv_path or not folder:
+            self._log("ERROR: Please select both a CSV file and an image folder.")
+            return
+
+        if not os.path.isfile(csv_path):
+            self._log("ERROR: CSV file not found: " + csv_path)
+            return
+
+        if not os.path.isdir(folder):
+            self._log("ERROR: Image folder not found: " + folder)
+            return
+
+        self.run_btn.config(state="disabled")
+        t = threading.Thread(target=self._run_job, args=(csv_path, folder), daemon=True)
+        t.start()
+
+    def _run_job(self, csv_path, folder):
+        log = self._log_threadsafe
+
+        exiftool = find_exiftool()
+        if not exiftool:
+            log("ERROR: ExifTool not found.")
+            log("       Download from: https://exiftool.org")
+            log("       Place exiftool.exe in the same folder as this script,")
+            log("       or add it to your PATH.")
+            self.after(0, lambda: self.run_btn.config(state="normal"))
+            return
+
+        log("ExifTool: " + exiftool)
+        log("CSV:      " + csv_path)
+        log("Folder:   " + folder)
+        log("-" * 60)
+
+        ok = skip = errors = 0
+
+        try:
+            with open(csv_path, newline="", encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+        except Exception as e:
+            log("ERROR: Could not read CSV — " + str(e))
+            self.after(0, lambda: self.run_btn.config(state="normal"))
+            return
+
+        for row in rows:
+            filename    = row.get("filename", "").strip()
+            people_raw  = row.get("people",   "").strip()
+
+            if not filename:
+                continue
+
+            if not people_raw:
+                log("SKIP: {} — no names listed".format(filename))
+                skip += 1
+                continue
+
+            image_path = os.path.join(folder, filename)
+            if not os.path.isfile(image_path):
+                log("SKIP: {} — not found in image folder".format(filename))
+                skip += 1
+                continue
+
+            names = [n.strip() for n in people_raw.split(",") if n.strip()]
+            if not names:
+                log("SKIP: {} — no names after parsing".format(filename))
+                skip += 1
+                continue
+
+            try:
+                code, stdout, stderr = run_exiftool(exiftool, image_path, names)
+            except subprocess.TimeoutExpired:
+                log("ERROR: {} — ExifTool timed out".format(filename))
+                errors += 1
+                continue
+            except Exception as e:
+                log("ERROR: {} — {}".format(filename, str(e)))
+                errors += 1
+                continue
+
+            if code == 0:
+                log("OK:    {} — {} person(s) tagged: {}".format(
+                    filename, len(names), ", ".join(names)))
+                ok += 1
+            else:
+                log("ERROR: {} — ExifTool exit code {}: {}".format(
+                    filename, code, stderr or stdout))
+                errors += 1
+
+        log("-" * 60)
+        log("Done.  {} tagged,  {} skipped,  {} error(s).".format(ok, skip, errors))
+        self.after(0, lambda: self.run_btn.config(state="normal"))
+
+
+if __name__ == "__main__":
+    App().mainloop()

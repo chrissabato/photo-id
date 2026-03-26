@@ -53,11 +53,16 @@ foreach ($ids_rs->fetchAll() as $row) {
       <h4 class="mb-0"><?= htmlspecialchars($gallery['name']) ?></h4>
       <small class="text-muted">Created <?= date('M j, Y', strtotime($gallery['created_at'])) ?></small>
     </div>
-    <?php if ($gallery['completed_at']): ?>
-      <span class="badge bg-success fs-6">Completed <?= date('M j, Y', strtotime($gallery['completed_at'])) ?></span>
-    <?php else: ?>
-      <span class="badge bg-secondary fs-6">Pending</span>
-    <?php endif; ?>
+    <div class="d-flex align-items-center gap-2">
+      <a href="export.php?gallery_id=<?= $id ?>" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-download"></i> Download CSV
+      </a>
+      <?php if ($gallery['completed_at']): ?>
+        <span class="badge bg-success fs-6">Completed <?= date('M j, Y', strtotime($gallery['completed_at'])) ?></span>
+      <?php else: ?>
+        <span class="badge bg-secondary fs-6">Pending</span>
+      <?php endif; ?>
+    </div>
   </div>
 
 
