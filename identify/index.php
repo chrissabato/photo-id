@@ -26,7 +26,21 @@ $already_done = $gallery['completed_at'] !== null;
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
-  body { background: #f8f9fa; }
+  body { background: #f8f9fa; padding-bottom: 80px; }
+  #submit-bar {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #198754;
+    color: #fff;
+    padding: .85rem 1.5rem;
+    z-index: 1000;
+    box-shadow: 0 -2px 12px rgba(0,0,0,.2);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  #submit-bar.visible { display: flex; }
   #main-photo {
     width: 100%;
     max-height: 480px;
@@ -159,6 +173,7 @@ $already_done = $gallery['completed_at'] !== null;
             You can still go back and change answers before submitting.
           </p>
         </div>
+        </div>
       </div>
 
       <!-- Names sidebar -->
@@ -174,6 +189,14 @@ $already_done = $gallery['completed_at'] !== null;
       </div>
 
     </div>
+  </div>
+
+  <!-- Sticky submit bar -->
+  <div id="submit-bar">
+    <span><i class="bi bi-check-circle"></i> All photos answered — ready to submit!</span>
+    <button class="btn btn-light text-success fw-bold" id="submit-bar-btn">
+      Submit All <i class="bi bi-arrow-right"></i>
+    </button>
   </div>
 
   <!-- Step 3: thank you -->
@@ -270,6 +293,7 @@ function showPhoto(idx) {
   const allAnswered = PHOTOS.every(function(ph) { return answers[ph.id] !== undefined; });
   document.getElementById('done-btn').style.display  = allAnswered ? 'inline-block' : 'none';
   document.getElementById('done-hint').style.display = allAnswered ? 'block' : 'none';
+  document.getElementById('submit-bar').classList.toggle('visible', allAnswered);
 }
 
 function saveCurrentAnswer() {
@@ -334,6 +358,10 @@ document.getElementById('prev-btn').addEventListener('click', function() {
 
 peopleInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.getElementById('save-btn').click();
+});
+
+document.getElementById('submit-bar-btn').addEventListener('click', function() {
+  document.getElementById('done-btn').click();
 });
 
 document.getElementById('done-btn').addEventListener('click', async function() {
