@@ -137,16 +137,15 @@ $already_done = $gallery['completed_at'] !== null;
           </div>
         </div>
 
-        <div class="mb-2">
+        <div class="mb-3">
           <label class="form-label fw-semibold">Who is in this photo?</label>
-          <input type="text" id="people-input" class="form-control form-control-lg"
-                 placeholder="e.g. John Smith, Mary Jones">
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" id="prev-btn"><i class="bi bi-chevron-left"></i></button>
+            <input type="text" id="people-input" class="form-control form-control-lg flex-grow-1"
+                   placeholder="e.g. John Smith, Mary Jones">
+            <button class="btn btn-primary" id="save-btn">Save &amp; Next <i class="bi bi-chevron-right"></i></button>
+          </div>
           <div class="form-text">Enter all names, separated by commas. Leave blank if unknown.</div>
-        </div>
-
-        <div class="d-flex gap-2 mb-3">
-          <button class="btn btn-outline-secondary" id="prev-btn"><i class="bi bi-chevron-left"></i> Prev</button>
-          <button class="btn btn-primary flex-grow-1" id="save-btn">Save &amp; Next <i class="bi bi-chevron-right"></i></button>
         </div>
 
         <div class="thumb-strip mb-4" id="thumb-strip"></div>
