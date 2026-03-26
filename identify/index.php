@@ -89,13 +89,8 @@ $already_done = $gallery['completed_at'] !== null;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
   }
-  .quick-name-btn {
-    font-size: .8rem;
-    text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  #name-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .quick-name-btn { font-size: .8rem; }
 </style>
 </head>
 <body>
@@ -292,7 +287,7 @@ function addNameButton(name) {
   nameListEmpty.style.display = 'none';
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.className = 'btn btn-outline-secondary btn-sm quick-name-btn w-100 mb-1';
+  btn.className = 'btn btn-outline-secondary btn-sm quick-name-btn';
   btn.title = name;
   btn.innerHTML = '<i class="bi bi-plus"></i> ' + escapeHtml(name);
   btn.addEventListener('click', function() {
