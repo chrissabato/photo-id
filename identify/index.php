@@ -256,7 +256,7 @@ function showPhoto(idx) {
 
   document.querySelectorAll('.thumb').forEach(function(th, i) {
     th.classList.toggle('active', i === idx);
-    th.classList.toggle('saved', answers[PHOTOS[i].id] !== undefined);
+    th.classList.toggle('saved', !!answers[PHOTOS[i].id]);
   });
 
   document.getElementById('prev-btn').disabled = idx === 0;
