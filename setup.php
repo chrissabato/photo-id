@@ -15,7 +15,7 @@ $checks['PDO SQLite'] = [
 ];
 
 // DB directory
-$db_dir  = '/var/lib/photo-id';
+$db_dir  = __DIR__ . '/data';
 $db_path = $db_dir . '/photo_id.sqlite';
 $dir_exists   = is_dir($db_dir);
 $dir_writable = $dir_exists && is_writable($db_dir);
@@ -83,10 +83,10 @@ systemctl restart httpd
 
 <?php endif; ?>
 <?php if (!$dir_exists || !$dir_writable): ?>
-# Create DB directory and set permissions
-mkdir -p /var/lib/photo-id
-chown apache:apache /var/lib/photo-id
-chmod 750 /var/lib/photo-id
+# Fix data directory permissions
+chown apache:apache <?= $db_dir ?>
+
+chmod 750 <?= $db_dir ?>
 
 <?php endif; ?>
 <?php if (!is_writable($upload_dir)): ?>

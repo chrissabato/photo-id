@@ -2,9 +2,9 @@
 uploads/*/
 
 # SQLite database
-*.sqlite
-*.sqlite-wal
-*.sqlite-shm
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
 
 # OS / editor
 .DS_Store

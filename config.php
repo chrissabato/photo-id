@@ -1,6 +1,6 @@
 <?php
-// SQLite database path (outside web root for security)
-define('DB_PATH', '/var/lib/photo-id/photo_id.sqlite');
+// SQLite database path (in data/ directory, protected by .htaccess)
+define('DB_PATH', __DIR__ . '/data/photo_id.sqlite');
 
 // Admin notification email
 define('ADMIN_EMAIL', 'admin@example.com');
