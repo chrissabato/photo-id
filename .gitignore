@@ -6,6 +6,9 @@ data/*.sqlite
 data/*.sqlite-wal
 data/*.sqlite-shm
 
+# Server-specific auth config (contains usernames — do not commit)
+admin/.htaccess
+
 # OS / editor
 .DS_Store
 Thumbs.db
