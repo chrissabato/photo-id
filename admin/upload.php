@@ -35,8 +35,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mime = mime_content_type($files['tmp_name'][$i]);
             if (!in_array($mime, ALLOWED_TYPES))        { $skipped++; continue; }
 
-            $ext      = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
-            $filename = bin2hex(random_bytes(8)) . '.' . strtolower($ext);
+            // Sanitize original filename: keep alphanumeric, dots, dashes, underscores
+            $original = pathinfo($files['name'][$i], PATHINFO_FILENAME);
+            $ext      = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
+            $original = preg_replace('/[^a-zA-Z0-9._-]/', '_', $original);
+            $original = trim($original, '._-') ?: 'photo';
+            // Avoid collisions if the same filename is uploaded twice
+            $filename = $original . '.' . $ext;
+            if (file_exists($upload_dir . $filename)) {
+                $filename = $original . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+            }
 
             if (move_uploaded_file($files['tmp_name'][$i], $upload_dir . $filename)) {
                 $stmt->execute([$gallery_id, $filename, $order++]);
