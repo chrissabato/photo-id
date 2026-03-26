@@ -301,13 +301,12 @@ function appendName(name) {
   if (current_val === '') {
     peopleInput.value = name;
   } else {
-    // Don't add if already in the field
     const existing = current_val.split(',').map(function(n) { return n.trim(); });
     if (existing.indexOf(name) === -1) {
       peopleInput.value = current_val + ', ' + name;
     }
   }
-  peopleInput.focus();
+  peopleInput.blur();
 }
 
 function escapeHtml(str) {
