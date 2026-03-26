@@ -24,6 +24,49 @@ from tkinter import filedialog, scrolledtext, ttk
 
 
 # ---------------------------------------------------------------------------
+# Filename matching
+# ---------------------------------------------------------------------------
+
+def normalize(filename):
+    """
+    Normalize a filename the same way the upload sanitizer does:
+    replace any character that isn't alphanumeric, dot, or dash with underscore,
+    then lowercase for case-insensitive comparison.
+    e.g. "My Photo - 001.jpg" -> "my_photo___001.jpg"
+    """
+    import re
+    return re.sub(r'[^a-zA-Z0-9.\-]', '_', filename).lower()
+
+
+def build_folder_index(folder):
+    """
+    Return a dict mapping normalized filename -> actual filename
+    for every file in the folder.
+    """
+    index = {}
+    for f in os.listdir(folder):
+        if os.path.isfile(os.path.join(folder, f)):
+            index[normalize(f)] = f
+    return index
+
+
+def find_image(folder, csv_filename, index):
+    """
+    Find the actual file in folder matching csv_filename.
+    1. Exact match
+    2. Normalized match (handles spaces -> underscores, etc.)
+    Returns full path or None.
+    """
+    exact = os.path.join(folder, csv_filename)
+    if os.path.isfile(exact):
+        return exact
+    actual = index.get(normalize(csv_filename))
+    if actual:
+        return os.path.join(folder, actual)
+    return None
+
+
+# ---------------------------------------------------------------------------
 # ExifTool helpers
 # ---------------------------------------------------------------------------
 
@@ -165,6 +208,7 @@ class App(tk.Tk):
         log("-" * 60)
 
         ok = skip = errors = 0
+        folder_index = build_folder_index(folder)
 
         try:
             with open(csv_path, newline="", encoding="utf-8-sig") as f:
@@ -187,8 +231,8 @@ class App(tk.Tk):
                 skip += 1
                 continue
 
-            image_path = os.path.join(folder, filename)
-            if not os.path.isfile(image_path):
+            image_path = find_image(folder, filename, folder_index)
+            if not image_path:
                 log("SKIP: {} — not found in image folder".format(filename))
                 skip += 1
                 continue
@@ -211,8 +255,10 @@ class App(tk.Tk):
                 continue
 
             if code == 0:
-                log("OK:    {} — {} person(s) tagged: {}".format(
-                    filename, len(names), ", ".join(names)))
+                actual_name = os.path.basename(image_path)
+                match_note = " (matched as {})".format(actual_name) if actual_name != filename else ""
+                log("OK:    {}{} — {} person(s) tagged: {}".format(
+                    filename, match_note, len(names), ", ".join(names)))
                 ok += 1
             else:
                 log("ERROR: {} — ExifTool exit code {}: {}".format(
