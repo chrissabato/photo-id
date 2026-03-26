@@ -32,7 +32,7 @@ $checks['Uploads dir writable'] = ['value' => is_writable($upload_dir) ? 'yes' :
 // Web server user
 $checks['Web server user'] = ['value' => get_current_user() . ' / process: ' . (function_exists('posix_getpwuid') ? posix_getpwuid(posix_geteuid())['name'] : 'unknown'), 'ok' => true];
 
-$all_ok = array_reduce($checks, fn($carry, $c) => $carry && $c['ok'], true);
+$all_ok = array_reduce($checks, function($carry, $c) { return $carry && $c['ok']; }, true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
