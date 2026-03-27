@@ -73,9 +73,24 @@ def find_image(folder, csv_filename, index):
 def find_exiftool():
     """Return path to exiftool executable, or None if not found."""
     script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    # Check script directory directly
     candidate = os.path.join(script_dir, "exiftool.exe")
     if os.path.isfile(candidate):
         return candidate
+
+    # Check any subfolder whose name contains "exiftool"
+    try:
+        for entry in os.listdir(script_dir):
+            if "exiftool" in entry.lower():
+                subfolder = os.path.join(script_dir, entry)
+                if os.path.isdir(subfolder):
+                    for f in os.listdir(subfolder):
+                        if f.lower().endswith(".exe") and "exiftool" in f.lower():
+                            return os.path.join(subfolder, f)
+    except OSError:
+        pass
+
     return shutil.which("exiftool") or shutil.which("exiftool.exe")
 
 
