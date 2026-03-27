@@ -121,15 +121,20 @@ class App(tk.Tk):
         frm.pack(fill="x", padx=12, pady=8)
         frm.columnconfigure(1, weight=1)
 
-        ttk.Label(frm, text="CSV File:").grid(row=0, column=0, sticky="w", **pad)
-        self.csv_var = tk.StringVar()
-        ttk.Entry(frm, textvariable=self.csv_var).grid(row=0, column=1, sticky="ew", **pad)
-        ttk.Button(frm, text="Browse…", command=self._browse_csv).grid(row=0, column=2, **pad)
+        ttk.Label(frm, text="ExifTool:").grid(row=0, column=0, sticky="w", **pad)
+        self.exiftool_var = tk.StringVar(value=find_exiftool() or "")
+        ttk.Entry(frm, textvariable=self.exiftool_var).grid(row=0, column=1, sticky="ew", **pad)
+        ttk.Button(frm, text="Browse…", command=self._browse_exiftool).grid(row=0, column=2, **pad)
 
-        ttk.Label(frm, text="Image Folder:").grid(row=1, column=0, sticky="w", **pad)
+        ttk.Label(frm, text="CSV File:").grid(row=1, column=0, sticky="w", **pad)
+        self.csv_var = tk.StringVar()
+        ttk.Entry(frm, textvariable=self.csv_var).grid(row=1, column=1, sticky="ew", **pad)
+        ttk.Button(frm, text="Browse…", command=self._browse_csv).grid(row=1, column=2, **pad)
+
+        ttk.Label(frm, text="Image Folder:").grid(row=2, column=0, sticky="w", **pad)
         self.folder_var = tk.StringVar()
-        ttk.Entry(frm, textvariable=self.folder_var).grid(row=1, column=1, sticky="ew", **pad)
-        ttk.Button(frm, text="Browse…", command=self._browse_folder).grid(row=1, column=2, **pad)
+        ttk.Entry(frm, textvariable=self.folder_var).grid(row=2, column=1, sticky="ew", **pad)
+        ttk.Button(frm, text="Browse…", command=self._browse_folder).grid(row=2, column=2, **pad)
 
         # --- Run button ---
         self.run_btn = ttk.Button(self, text="Run", command=self._on_run)
@@ -140,6 +145,14 @@ class App(tk.Tk):
         ttk.Label(self, text="Log:", anchor="w").pack(fill="x", padx=12, pady=(6, 0))
         self.log = scrolledtext.ScrolledText(self, state="disabled", wrap="word", height=16)
         self.log.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+
+    def _browse_exiftool(self):
+        path = filedialog.askopenfilename(
+            title="Locate exiftool.exe",
+            filetypes=[("ExifTool", "exiftool.exe"), ("Executable", "*.exe"), ("All files", "*.*")],
+        )
+        if path:
+            self.exiftool_var.set(path)
 
     def _browse_csv(self):
         path = filedialog.askopenfilename(
@@ -173,6 +186,7 @@ class App(tk.Tk):
 
         csv_path = self.csv_var.get().strip()
         folder   = self.folder_var.get().strip()
+        exiftool = self.exiftool_var.get().strip()
 
         if not csv_path or not folder:
             self._log("ERROR: Please select both a CSV file and an image folder.")
@@ -186,21 +200,21 @@ class App(tk.Tk):
             self._log("ERROR: Image folder not found: " + folder)
             return
 
+        if not exiftool:
+            self._log("ERROR: ExifTool not found. Use the Browse button to locate exiftool.exe.")
+            self._log("       Download from: https://exiftool.org")
+            return
+
+        if not os.path.isfile(exiftool):
+            self._log("ERROR: ExifTool not found at: " + exiftool)
+            return
+
         self.run_btn.config(state="disabled")
-        t = threading.Thread(target=self._run_job, args=(csv_path, folder), daemon=True)
+        t = threading.Thread(target=self._run_job, args=(csv_path, folder, exiftool), daemon=True)
         t.start()
 
-    def _run_job(self, csv_path, folder):
+    def _run_job(self, csv_path, folder, exiftool):
         log = self._log_threadsafe
-
-        exiftool = find_exiftool()
-        if not exiftool:
-            log("ERROR: ExifTool not found.")
-            log("       Download from: https://exiftool.org")
-            log("       Place exiftool.exe in the same folder as this script,")
-            log("       or add it to your PATH.")
-            self.after(0, lambda: self.run_btn.config(state="normal"))
-            return
 
         log("ExifTool: " + exiftool)
         log("CSV:      " + csv_path)
