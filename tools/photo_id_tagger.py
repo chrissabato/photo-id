@@ -72,6 +72,12 @@ def find_image(folder, csv_filename, index):
 
 def find_exiftool():
     """Return path to exiftool executable, or None if not found."""
+    # When running as a PyInstaller bundle, check the temp extraction directory first
+    if getattr(sys, 'frozen', False):
+        bundled = os.path.join(sys._MEIPASS, "exiftool.exe")
+        if os.path.isfile(bundled):
+            return bundled
+
     script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
     # Check script directory directly
