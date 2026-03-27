@@ -84,7 +84,7 @@ def run_exiftool(exiftool_path, image_path, names):
     Write PersonInImage tags to an image file.
     Returns (returncode, stdout, stderr).
     """
-    tag = "Iptc4xmpExt:PersonInImage"
+    tag = "XMP-iptcExt:PersonInImage"
     args = [exiftool_path, "-overwrite_original"]
     args.append("-{}={}".format(tag, names[0]))
     for name in names[1:]:
