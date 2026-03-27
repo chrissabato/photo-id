@@ -105,6 +105,9 @@ $galleries = $db->query("
             <a href="admin/view.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-outline-primary flex-grow-1">
               <i class="bi bi-eye"></i> View Results
             </a>
+            <a href="admin/export.php?gallery_id=<?= $g['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Download CSV">
+              <i class="bi bi-download"></i>
+            </a>
             <button class="btn btn-sm btn-outline-danger delete-btn"
                     data-id="<?= $g['id'] ?>"
                     data-name="<?= htmlspecialchars($g['name'], ENT_QUOTES) ?>"
