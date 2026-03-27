@@ -325,8 +325,10 @@ function showPhoto(idx) {
 
   const allAnswered = PHOTOS.every(function(ph) { return answers[ph.id] !== undefined; });
   const tagged = PHOTOS.filter(function(ph) { return answers[ph.id]; }).length;
-  document.getElementById('submit-bar-msg').innerHTML =
-    '<i class="bi bi-check-circle"></i> ' + tagged + ' of ' + PHOTOS.length + ' photos tagged — ready to submit!';
+  const allTagged = tagged === PHOTOS.length;
+  document.getElementById('submit-bar-msg').innerHTML = allTagged
+    ? '<i class="bi bi-check-circle"></i> ' + tagged + ' of ' + PHOTOS.length + ' photos tagged — ready to submit!'
+    : '<i class="bi bi-exclamation-circle"></i> ' + tagged + ' of ' + PHOTOS.length + ' photos tagged — are you sure you want to submit?';
   document.getElementById('done-btn').style.display  = allAnswered ? 'inline-block' : 'none';
   document.getElementById('done-hint').style.display = allAnswered ? 'block' : 'none';
   document.getElementById('submit-bar').classList.toggle('visible', allAnswered);
