@@ -212,8 +212,8 @@ class App(tk.Tk):
 
         if "(-k)" in os.path.basename(exiftool):
             self._log("ERROR: You selected exiftool(-k).exe — this version waits for a keypress and cannot be used by this script.")
-            self._log("       Please download the plain exiftool.exe from https://exiftool.org")
-            self._log("       Look for the 'Windows Executable' link (not the zip with -k).")
+            self._log("       Fix: rename exiftool(-k).exe to exiftool.exe — that is all you need to do.")
+            self._log("       Or download the plain exiftool.exe from https://exiftool.org (Windows Executable link).")
             return
 
         self.run_btn.config(state="disabled")
