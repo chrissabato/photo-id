@@ -205,14 +205,6 @@ $already_done = $gallery['completed_at'] !== null;
 
         <div class="thumb-strip mb-4" id="thumb-strip"></div>
 
-        <div class="text-center mt-2 mb-5">
-          <button class="btn btn-success btn-lg" id="done-btn" style="display:none">
-            <i class="bi bi-check-lg"></i> I'm Done — Submit All
-          </button>
-          <p class="text-muted small mt-1" id="done-hint" style="display:none">
-            You can still go back and change answers before submitting.
-          </p>
-        </div>
       </div>
 
       <!-- Names sidebar -->
@@ -329,8 +321,6 @@ function showPhoto(idx) {
   document.getElementById('submit-bar-msg').innerHTML = allTagged
     ? '<i class="bi bi-check-circle"></i> ' + tagged + ' of ' + PHOTOS.length + ' photos tagged — ready to submit!'
     : '<i class="bi bi-exclamation-circle"></i> ' + tagged + ' of ' + PHOTOS.length + ' photos tagged — are you sure you want to submit?';
-  document.getElementById('done-btn').style.display  = allAnswered ? 'inline-block' : 'none';
-  document.getElementById('done-hint').style.display = allAnswered ? 'block' : 'none';
   document.getElementById('submit-bar').classList.toggle('visible', allAnswered);
 }
 
@@ -407,13 +397,10 @@ peopleInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.getElementById('save-btn').click();
 });
 
-document.getElementById('submit-bar-btn').addEventListener('click', function() {
-  document.getElementById('done-btn').click();
-});
-
-document.getElementById('done-btn').addEventListener('click', async function() {
-  document.getElementById('done-btn').disabled = true;
-  document.getElementById('done-btn').textContent = 'Submitting…';
+const submitBarBtn = document.getElementById('submit-bar-btn');
+submitBarBtn.addEventListener('click', async function() {
+  submitBarBtn.disabled = true;
+  submitBarBtn.textContent = 'Submitting…';
 
   const payload = PHOTOS.map(function(p) {
     return { photo_id: p.id, people: answers[p.id] !== undefined ? answers[p.id] : '' };
@@ -435,13 +422,13 @@ document.getElementById('done-btn').addEventListener('click', async function() {
       stepDone.classList.remove('d-none');
     } else {
       alert('Error: ' + (data.error || 'Unknown error'));
-      document.getElementById('done-btn').disabled = false;
-      document.getElementById('done-btn').innerHTML = '<i class="bi bi-check-lg"></i> I\'m Done — Submit All';
+      submitBarBtn.disabled = false;
+      submitBarBtn.innerHTML = 'Submit All <i class="bi bi-arrow-right"></i>';
     }
   } catch (e) {
     alert('Network error. Please try again.');
-    document.getElementById('done-btn').disabled = false;
-    document.getElementById('done-btn').innerHTML = '<i class="bi bi-check-lg"></i> I\'m Done — Submit All';
+    submitBarBtn.disabled = false;
+    submitBarBtn.innerHTML = 'Submit All <i class="bi bi-arrow-right"></i>';
   }
 });
 
