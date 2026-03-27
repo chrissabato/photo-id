@@ -210,6 +210,12 @@ class App(tk.Tk):
             self._log("ERROR: ExifTool not found at: " + exiftool)
             return
 
+        if "(-k)" in os.path.basename(exiftool):
+            self._log("ERROR: You selected exiftool(-k).exe — this version waits for a keypress and cannot be used by this script.")
+            self._log("       Please download the plain exiftool.exe from https://exiftool.org")
+            self._log("       Look for the 'Windows Executable' link (not the zip with -k).")
+            return
+
         self.run_btn.config(state="disabled")
         t = threading.Thread(target=self._run_job, args=(csv_path, folder, exiftool), daemon=True)
         t.start()
