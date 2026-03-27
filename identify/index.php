@@ -240,7 +240,7 @@ $already_done = $gallery['completed_at'] !== null;
 
   <!-- Sticky submit bar -->
   <div id="submit-bar">
-    <span><i class="bi bi-check-circle"></i> All photos answered — ready to submit!</span>
+    <span id="submit-bar-msg"><i class="bi bi-check-circle"></i> </span>
     <button class="btn btn-light text-success fw-bold" id="submit-bar-btn">
       Submit All <i class="bi bi-arrow-right"></i>
     </button>
@@ -324,6 +324,9 @@ function showPhoto(idx) {
   document.getElementById('prev-btn').disabled = idx === 0;
 
   const allAnswered = PHOTOS.every(function(ph) { return answers[ph.id] !== undefined; });
+  const tagged = PHOTOS.filter(function(ph) { return answers[ph.id]; }).length;
+  document.getElementById('submit-bar-msg').innerHTML =
+    '<i class="bi bi-check-circle"></i> ' + tagged + ' of ' + PHOTOS.length + ' photos tagged — ready to submit!';
   document.getElementById('done-btn').style.display  = allAnswered ? 'inline-block' : 'none';
   document.getElementById('done-hint').style.display = allAnswered ? 'block' : 'none';
   document.getElementById('submit-bar').classList.toggle('visible', allAnswered);
