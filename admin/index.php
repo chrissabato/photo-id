@@ -10,11 +10,9 @@ if (!get_setting('admin_email') && !get_setting('gchat_webhook')) {
 $db = get_db();
 $galleries = $db->query("
     SELECT g.*,
-           COUNT(DISTINCT p.id) AS photo_count,
-           COUNT(DISTINCT i.identifier_name) AS identifier_count
+           COUNT(DISTINCT p.id) AS photo_count
     FROM galleries g
     LEFT JOIN photos p ON p.gallery_id = g.id
-    LEFT JOIN identifications i ON i.gallery_id = g.id
     GROUP BY g.id
     ORDER BY g.created_at DESC
 ")->fetchAll();
@@ -87,7 +85,6 @@ $galleries = $db->query("
             <small class="text-muted d-block mb-2"><?= date('M j, Y', strtotime($g['created_at'])) ?></small>
             <div class="d-flex gap-3 text-muted small mb-3">
               <span><i class="bi bi-image"></i> <?= $g['photo_count'] ?> photos</span>
-              <span><i class="bi bi-people"></i> <?= $g['identifier_count'] ?> identifier(s)</span>
             </div>
             <div class="mb-2">
               <label class="form-label small text-muted mb-1">Share link</label>

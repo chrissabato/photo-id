@@ -161,10 +161,58 @@ function showPreviews(files) {
   });
 }
 
-document.getElementById('upload-form').addEventListener('submit', () => {
-  document.getElementById('submit-btn').disabled = true;
-  document.getElementById('submit-btn').textContent = 'Uploading…';
+document.getElementById('upload-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn     = document.getElementById('submit-btn');
+  const nameVal = document.querySelector('input[name="name"]').value;
+  const files   = fileInput.files;
+  const MAX_DIM = 1920;
+
+  btn.disabled = true;
+
+  const formData = new FormData();
+  formData.append('name', nameVal);
+
+  for (let i = 0; i < files.length; i++) {
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Resizing ${i + 1} of ${files.length}…`;
+    const blob = await resizeImage(files[i], MAX_DIM);
+    formData.append('photos[]', blob, files[i].name);
+  }
+
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Uploading…';
+
+  const response = await fetch('upload.php', { method: 'POST', body: formData });
+  const html     = await response.text();
+  document.open();
+  document.write(html);
+  document.close();
 });
+
+function resizeImage(file, maxDim) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width <= maxDim && height <= maxDim) { resolve(file); return; }
+      if (width > height) {
+        height = Math.round(height * maxDim / width);
+        width  = maxDim;
+      } else {
+        width  = Math.round(width * maxDim / height);
+        height = maxDim;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width  = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(resolve, file.type, 0.88);
+    };
+    img.src = url;
+  });
+}
 </script>
 </body>
 </html>
