@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../db.php';
 
 $id = (int)($_POST['id'] ?? 0);
-if (!$id) { header('Location: ../index.php'); exit; }
+if (!$id) { header('Location: index.php'); exit; }
 
 $db = get_db();
 
@@ -24,5 +24,5 @@ if ($gallery) {
     $db->prepare("DELETE FROM galleries WHERE id = ?")->execute([$id]);
 }
 
-header('Location: ../index.php');
+header('Location: index.php');
 exit;

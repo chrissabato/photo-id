@@ -82,7 +82,7 @@ if ($action === 'edit' && $id) {
 <body>
 <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container">
-    <a href="../index.php" class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</a>
+    <a href="index.php" class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</a>
   </div>
 </nav>
 

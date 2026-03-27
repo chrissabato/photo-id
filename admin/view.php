@@ -2,14 +2,14 @@
 require_once __DIR__ . '/../db.php';
 
 $id = (int)($_GET['id'] ?? 0);
-if (!$id) { header('Location: ../index.php'); exit; }
+if (!$id) { header('Location: index.php'); exit; }
 
 $db = get_db();
 
 $gallery = $db->prepare("SELECT * FROM galleries WHERE id = ?");
 $gallery->execute([$id]);
 $gallery = $gallery->fetch();
-if (!$gallery) { header('Location: ../index.php'); exit; }
+if (!$gallery) { header('Location: index.php'); exit; }
 
 // Fetch photos, then identifications separately (SQLite-compatible)
 $photos = $db->prepare("SELECT * FROM photos WHERE gallery_id = ? ORDER BY sort_order");
@@ -43,7 +43,7 @@ foreach ($ids_rs->fetchAll() as $row) {
 <body>
 <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container">
-    <a href="../index.php" class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</a>
+    <a href="index.php" class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</a>
   </div>
 </nav>
 

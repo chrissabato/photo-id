@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container">
-    <a href="../index.php" class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</a>
+    <a href="index.php" class="navbar-brand fw-bold"><i class="bi bi-camera"></i> Photo ID Admin</a>
   </div>
 </nav>
 
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <i class="bi bi-clipboard"></i> Copy
       </button>
     </div>
-    <a href="../index.php" class="btn btn-primary">Back to Dashboard</a>
+    <a href="index.php" class="btn btn-primary">Back to Dashboard</a>
   <?php else: ?>
     <form method="POST" enctype="multipart/form-data" id="upload-form">
       <div class="mb-3">
