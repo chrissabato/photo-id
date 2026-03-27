@@ -43,6 +43,7 @@ $galleries = $db->query("
       <a href="admin/upload.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New Gallery</a>
       <a href="admin/rosters.php" class="btn btn-outline-light btn-sm"><i class="bi bi-people"></i> Rosters</a>
       <a href="admin/settings.php" class="btn btn-outline-light btn-sm"><i class="bi bi-gear"></i> Settings</a>
+      <a href="tools/photo_id_tagger.zip" class="btn btn-outline-light btn-sm" download><i class="bi bi-download"></i> Tagger</a>
     </div>
   </div>
 </nav>

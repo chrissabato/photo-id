@@ -57,10 +57,7 @@ foreach ($ids_rs->fetchAll() as $row) {
       <a href="export.php?gallery_id=<?= $id ?>" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-download"></i> Download CSV
       </a>
-      <a href="../tools/photo_id_tagger.zip" class="btn btn-sm btn-outline-secondary" download>
-        <i class="bi bi-download"></i> Download Tagger
-      </a>
-      <?php if ($gallery['completed_at']): ?>
+<?php if ($gallery['completed_at']): ?>
         <span class="badge bg-success fs-6">Completed <?= date('M j, Y', strtotime($gallery['completed_at'])) ?></span>
       <?php else: ?>
         <span class="badge bg-secondary fs-6">Pending</span>
