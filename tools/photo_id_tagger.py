@@ -97,6 +97,7 @@ def run_exiftool(exiftool_path, image_path, names):
         capture_output=True,
         text=True,
         timeout=30,
+        cwd=os.path.dirname(os.path.abspath(exiftool_path)),
     )
     return result.returncode, result.stdout.strip(), result.stderr.strip()
 
